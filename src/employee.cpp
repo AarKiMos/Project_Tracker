@@ -1,17 +1,24 @@
+/******************************************************************************
+ * JIIT Noida 
+ * Data Structures group Mini Project
+ * Project: 
+ * Author: Shashank Agrawal 9919103232
+******************************************************************************/
+
 #include "employee.h"
 
-emp::set_name(string str){
+void emp::set_name(string str){
   this->name=str;
 }
 
-emp::set_ID(int user_id){
+void emp::set_ID(int user_id){
   this->ID=user_id;
 }
 
-emp::get_ID(){
+int emp::get_ID(){
   return ID;
 }
 
-emp::get_name(){
+string emp::get_name(){
   return name;
 }

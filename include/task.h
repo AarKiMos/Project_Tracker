@@ -27,7 +27,7 @@ private:
 
 public:
 
-    task();
+    //TODO: Param and copy constructor
 
     void set_name(string);
     void set_ID(int);

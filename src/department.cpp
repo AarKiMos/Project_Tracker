@@ -1,17 +1,24 @@
+/******************************************************************************
+ * JIIT Noida 
+ * Data Structures group Mini Project
+ * Project: 
+ * Author: Shashank Agrawal 9919103232
+******************************************************************************/
+
 #include "department.h"
 
-dept::set_name(string str){
+void dept::set_name(string str){
   this->name=str;
 }
 
-dept::set_ID(int user_id){
+void dept::set_ID(int user_id){
   this->ID=user_id;
 }
 
-dept::get_ID(){
+int dept::get_ID(){
   return ID;
 }
 
-dept::get_name(){
+string dept::get_name(){
   return name;
 }

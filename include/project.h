@@ -14,31 +14,33 @@
 
 using namespace std;
 
-class project {
+class project
+{
 private:
-
-    static int auto_id;
     int ID;
     string name;
     struct tm deadline;
 
-    int task_count;
-    task task_list[10];
-
 public:
+    int task_count;
+    task *completed;
+    task *pending;
 
-    project();
+    //TODO: param and copy constructor
 
     void set_name(string);
     void set_ID(int);
-    void set_deadline(struct tm); //read ctime tm structure for more info 
+    void set_deadline(struct tm); //read ctime tm structure for more info
+
+    void set_task_count(int);
+    void set_task_list(task*);
 
     string get_name();
     int get_ID();
     struct tm get_deadline();
+    
+    int get_task_count();
+    task* get_task_list();
 };
-
-
-
 
 #endif
