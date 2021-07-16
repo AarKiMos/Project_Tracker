@@ -15,7 +15,7 @@ void project::set_ID(int user_id){
   this->ID=user_id;
 }
 
-void project::set_deadline( struct tm x){
+void project::set_deadline(struct tm x){
   this->deadline=x;
 }
 
@@ -30,3 +30,4 @@ string project::get_name(){
 tm project::get_deadline(){
   return deadline;
 }
+

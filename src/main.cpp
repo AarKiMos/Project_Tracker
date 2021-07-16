@@ -7,14 +7,13 @@
 #include <iostream>
 // #include <fstream>
 #include <cstring>
+#include <cstdlib>
 #include "mini_project.h"
 #include "db_util.h"
 #include "project.h"
 #include "department.h"
 #include "task.h"
 #include "employee.h"
-
-
 
 using namespace std;
 
@@ -24,7 +23,8 @@ DB_ROW row;  // the row
 
 void login(char *UID, char *pass)
 {
-    char *query = strcat("select * from user where UID = ", UID);
+    char query[] = "select * from user where UID = ";
+    strcat(query, UID);
     strcat(query, ";");
 
     res = db_perform_query(conn, query);
@@ -34,53 +34,61 @@ void login(char *UID, char *pass)
         cout << "ERROR: User not found, exiting";
         exit(1);
     }
-    else if (row[1] == pass)
+    else if (!strcmp(row[1], pass))
     {
-        if (row[2] == "root")
+        
+        if (strcmp(row[2],"root"))
         {
             root_view();
         }
-        else if (row[2] == "manager")
+        else if (strcmp(row[2],"manager"))
         {
             manager_view(UID);
         }
-        else if (row[2] == "employee")
+        else if (strcmp(row[2],"employee"))
         {
             employee_view(UID);
         }
     }
-    else 
+    else
     {
-        cout<<"!!!! Wrong Password for user "<< UID <<" !!!!"<<endl;
+        cout << "!!!! Wrong Password for user " << UID << " !!!!" << endl;
         exit(0);
     }
 }
 
-
-void root_view() 
+void root_view()
 {
-    
+    //prototypes
+
+    void new_employee();
+    void remove_employee();
+    void list_employees();
+    void list_projects();
+    void list_departments();
+
     // choice
     int loop = 1;
 
-    while(loop)
+    while (loop)
     {
-        cout<<"Welcome Root User"<<endl;
-        cout<<endl;
-        cout<<" 1. Add a new employee (user)"<<endl;
-        cout<<" 2. Remove an employee (user account)"<<endl;
-        cout<<" 3. Genreate a list of all the employees"<< endl;
-        cout<<" 4. Generate a list of all the projects"<<endl;
-        cout<<" 5. Exit"<<endl;
-        int choice;
-        cin>>choice;
+        cout << "Welcome Root User" << endl;
+        cout << endl;
+        cout << " 1. Add a new employee (user)" << endl;
+        cout << " 2. Remove an employee (user account)" << endl;
+        cout << " 3. Genreate a list of all the employees" << endl;
+        cout << " 4. Generate a list of all the projects" << endl;
+        cout << " 5. Generate a list of all the departments" << endl;
+        cout << " 6. Exit" << endl;
 
+        int choice;
+        cin >> choice;
         switch (choice)
         {
         case 1:
             //new_employee();
             break;
-        
+
         case 2:
             //remove_employee();
             break;
@@ -88,12 +96,16 @@ void root_view()
         case 3:
             //list_employees();
             break;
-        
+
         case 4:
             //list_projects();
             break;
 
         case 5:
+            //list_departments();
+            break;
+
+        case 6:
             loop = 0;
             break;
 
@@ -101,15 +113,63 @@ void root_view()
             break;
         }
     }
-    
+
     // list of employees ()
     // list of projects ()
     // add user account ()
     // remove account ()
 }
 
+void new_employee()
+{
+    char query[] = "Select MAX(EID) from employee;";
+    res = db_perform_query(conn, query);
+    row = mysql_fetch_row(res);
+    
+    emp new_emp;
+    string new_emp_name, dept_name;
+    int DID;
 
-void manager_view(char* UID)
+    cout<<"Enter name of employee"<<endl;
+    cin>>new_emp_name;
+    cout<<"Enter Department ID for this new employee"<<endl;
+    cin>>DID;
+    cout<<"Enter Name of this Department"<<endl;
+
+    new_emp.set_ID(atoi(row[0])+1);
+    new_emp.set_name(new_emp_name);
+    new_emp.set_DID(DID);
+    new_emp.set_dept_name(dept_name);
+
+    char *query2;
+    sprintf(query2, "Insert into employee values (%d, \"%s\", %d, \"%s\");",new_emp.get_ID(), new_emp.get_name(), new_emp.get_DID(), new_emp.get_dept_name() );
+    
+    
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+void manager_view(char *UID)
 {
     emp current_user;
     char query[] = "select * from employee where EID = ";
@@ -125,24 +185,24 @@ void manager_view(char* UID)
     // add a project()
     // remove a project()
     int loop = 1;
-    while(loop)
+    while (loop)
     {
-        cout<<"Welcome Root User"<<endl;
-        cout<<endl;
-        cout<<" 1. Show open projects"<<endl;
-        cout<<" 2. Show closed projects)"<<endl;
-        cout<<" 3. Add a new project"<< endl;
-        cout<<" 4. Delete a project"<<endl;
-        cout<<" 5. Exit"<<endl;
+        cout << "Welcome Root User" << endl;
+        cout << endl;
+        cout << " 1. Show open projects" << endl;
+        cout << " 2. Show closed projects)" << endl;
+        cout << " 3. Add a new project" << endl;
+        cout << " 4. Delete a project" << endl;
+        cout << " 5. Exit" << endl;
         int choice;
-        cin>>choice;
+        cin >> choice;
 
         switch (choice)
         {
         case 1:
             //show_open_projects();
             break;
-        
+
         case 2:
             //show_closed_projects();
             break;
@@ -150,7 +210,7 @@ void manager_view(char* UID)
         case 3:
             //add_new_project();
             break;
-        
+
         case 4:
             //delete_a_project();
             break;
@@ -165,7 +225,7 @@ void manager_view(char* UID)
     }
 }
 
-void employee_view(char* UID)
+void employee_view(char *UID)
 {
     emp current_user;
     char query[] = "select * from employee where EID = ";
@@ -180,24 +240,24 @@ void employee_view(char* UID)
     // add a remark to current project()
 
     int loop = 1;
-    while(loop)
+    while (loop)
     {
-        cout<<"Welcome Root User"<<endl;
-        cout<<endl;
-        cout<<" 1. Start_next_task"<<endl;
-        cout<<" 2. View current task at hand"<<endl;
-        cout<<" 3. Mark current task at hand as completed"<< endl;
-        cout<<" 4. Add a remark to project at hand"<<endl;
-        cout<<" 5. Exit"<<endl;
-        
+        cout << "Welcome Root User" << endl;
+        cout << endl;
+        cout << " 1. Start_next_task" << endl;
+        cout << " 2. View current task at hand" << endl;
+        cout << " 3. Mark current task at hand as completed" << endl;
+        cout << " 4. Add a remark to project at hand" << endl;
+        cout << " 5. Exit" << endl;
+
         int choice;
-        cin>>choice;
+        cin >> choice;
         switch (choice)
         {
         case 1:
             //start_new_task();
             break;
-        
+
         case 2:
             //view_task_at_hand();
             break;
@@ -205,7 +265,7 @@ void employee_view(char* UID)
         case 3:
             //make_task_as_complete();
             break;
-        
+
         case 4:
             //add_remark();
             break;
@@ -220,20 +280,12 @@ void employee_view(char* UID)
     }
 }
 
-
-
-
-
-
-
-
-
 int main(int argc, char **argv)
 {
 
     // initialise DB connector
     struct connection_details D;
-    D.database = "week1b";
+    D.database = "mini_project";
     D.user = "aarkimos";
     D.password = "password1";
     D.server = "localhost";
@@ -260,16 +312,16 @@ int main(int argc, char **argv)
     }
     else //else ask for login credentials
     {
-        char *uid, *pass;
-        cout<<endl<<endl;
-        cout<<"Enter User ID: "<<endl;
-        cin>>uid;
-        cout<<"Enter Password"<<endl;
-        cin>>pass;
-        cout<<"endl";
+        char uid[5], pass[10];
+        cout << endl
+             << endl;
+        cout << "Enter User ID: " << endl;
+        cin.getline(uid, 5, '\n');
+        cout << "Enter Password" << endl;
+        cin.getline(pass, 10, '\n');
+        cout << endl;
 
         login(uid, pass);
-
     }
 
     //login and call view accordingly
