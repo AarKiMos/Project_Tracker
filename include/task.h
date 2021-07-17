@@ -20,6 +20,7 @@ private:
     int PID;
     string name;
     bool is_complete;
+    struct tm deadline;
     
     task* prev;
     task* next;
