@@ -11,7 +11,6 @@
 #include "mini_project.h"
 #include "db_util.h"
 #include "project.h"
-#include "department.h"
 #include "task.h"
 #include "employee.h"
 
@@ -65,7 +64,6 @@ void root_view()
     void remove_employee();
     void list_employees();
     void list_projects();
-    void list_departments();
 
     // choice
     int loop = 1;
@@ -78,8 +76,7 @@ void root_view()
         cout << " 2. Remove an employee (user account)" << endl;
         cout << " 3. Genreate a list of all the employees" << endl;
         cout << " 4. Generate a list of all the projects" << endl;
-        cout << " 5. Generate a list of all the departments" << endl;
-        cout << " 6. Exit" << endl;
+        cout << " 5. Exit" << endl;
 
         int choice;
         cin >> choice;
@@ -102,10 +99,6 @@ void root_view()
             break;
 
         case 5:
-            //list_departments();
-            break;
-
-        case 6:
             loop = 0;
             break;
 
@@ -127,22 +120,16 @@ void new_employee()
     row = mysql_fetch_row(res);
     
     emp new_emp;
-    string new_emp_name, dept_name;
-    int DID;
+    string new_emp_name;
 
     cout<<"Enter name of employee"<<endl;
     cin>>new_emp_name;
-    cout<<"Enter Department ID for this new employee"<<endl;
-    cin>>DID;
-    cout<<"Enter Name of this Department"<<endl;
 
     new_emp.set_ID(atoi(row[0])+1);
     new_emp.set_name(new_emp_name);
-    new_emp.set_DID(DID);
-    new_emp.set_dept_name(dept_name);
 
     char *query2;
-    sprintf(query2, "Insert into employee values (%d, \"%s\", %d, \"%s\");",new_emp.get_ID(), new_emp.get_name(), new_emp.get_DID(), new_emp.get_dept_name() );
+    sprintf(query2, "Insert into employee values (%d, \"%s\", %d, \"%s\");",new_emp.get_ID(), new_emp.get_name() );
     
     
 }

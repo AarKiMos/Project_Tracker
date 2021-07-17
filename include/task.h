@@ -19,7 +19,6 @@ private:
     int ID;
     int PID;
     string name;
-    string dept;
     bool is_complete;
     
     task* prev;
