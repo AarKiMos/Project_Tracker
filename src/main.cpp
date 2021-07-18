@@ -8,6 +8,8 @@
 // #include <fstream>
 #include <cstring>
 #include <cstdlib>
+#include <queue>
+#include <string>
 #include "mini_project.h"
 #include "db_util.h"
 #include "project.h"
@@ -19,6 +21,7 @@ using namespace std;
 DB *conn;    // the connection
 DB_RES *res; // the results
 DB_ROW row;  // the row
+priority_queue<int, vector<int>, greater<int>> proj_queue;
 
 int main(int argc, char **argv)
 {
@@ -253,6 +256,46 @@ void employee_view(char *UID)
     }
 }
 
+//Date utility function
+
+string formatDate(struct tm dateObj)
+{
+    string dateStr = to_string(dateObj.tm_year);
+    dateStr.append("-");
+    dateStr.append(to_string(dateObj.tm_mon));
+    dateStr.append("-");
+    dateStr.append(to_string(dateObj.tm_mday));
+
+    return dateStr;
+}
+
+// Task management functions
+
+void add_new_task(int new_task_pid)
+{
+    char query[] = "Select MAX(TID) from task;";
+    res = db_perform_query(conn, query);
+    row = mysql_fetch_row(res);
+  
+    task new_task;
+    string new_task_name;
+    struct tm new_task_dd;
+
+    cout<<"Enter name of Task"<<endl;
+    cin>>new_task_name;
+    cout<<"Enter deadline of task (DD MM YYYY)"<<endl;
+    cin>>new_task_dd.tm_mday>>new_task_dd.tm_mon>>new_task_dd.tm_year;
+
+    string ddStr = formatDate(new_task_dd);
+
+    new_task.set_PID(new_task_pid);
+    new_task.set_ID(atoi(row[0])+1);
+    new_task.set_name(new_task_name);
+    new_task.set_deadline(new_task_dd);
+
+    char *query2;
+    sprintf(query2, "Insert into task values (%d, %d, '%s', '%s');",new_task_pid,new_task.get_ID(), new_task.get_name(), ddStr);
+}
 
 // Functions called from within views
 
@@ -273,6 +316,40 @@ void new_employee()
 
     char *query2;
     sprintf(query2, "Insert into employee values (%d, '%s');",new_emp.get_ID(), new_emp.get_name() );
-    
-    
+}
+
+
+void add_new_project()
+{
+    char query[] = "Select MAX(PID) from project;";
+    res = db_perform_query(conn, query);
+    row = mysql_fetch_row(res);
+  
+    project new_proj;
+    string new_proj_name;
+    struct tm new_proj_dd;
+    int task_count = 0;
+
+    cout<<"Enter name of project"<<endl;
+    cin>>new_proj_name;
+    cout<<"Enter deadline of project (DD MM YYYY)"<<endl;
+    cin>>new_proj_dd.tm_mday>>new_proj_dd.tm_mon>>new_proj_dd.tm_year;
+
+    string ddStr = formatDate(new_proj_dd);
+
+    new_proj.set_ID(atoi(row[0])+1);
+    new_proj.set_name(new_proj_name);
+    new_proj.set_deadline(new_proj_dd);
+
+    int it = 1;
+    while(it)
+    {
+        task_count++;
+        add_new_task(new_proj.get_ID());
+        cout<<"Add new task? (1/0)"<<endl;
+        cin>>it;
+    }
+
+    char *query2;
+    sprintf(query2, "Insert into project values (%d, '%s', '%s', %d, %d);",new_proj.get_ID(), new_proj.get_name(), ddStr, 0, task_count);
 }
