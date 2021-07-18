@@ -327,7 +327,38 @@ void start_new_task()
 
 void view_task_at_hand()
 {
+    char *eid;
+    cout<<"Enter employee id"<<endl;
+    cin>>eid;
+    DB_RES *res;
+    DB_ROW row;
+    char query[] = "Select t.tid, t.name from task t, assing ag where ag.tid = t.tid and eid =";
+    strcat(query, eid);
+    res = db_perform_query(conn, query);
+    row = mysql_fetch_row(res);
+    cout<<endl<<row[0]<<" | "<<row[1];
+    db_free_result(res);
+}
 
+void mark_task_as_complete()
+{
+    char *eid;
+    cout<<"Enter employee id"<<endl;
+    cin>>eid;
+    DB_RES *res;
+    DB_ROW row;
+    char query[] = "Select tid from assing where eid = ";
+    strcat(query, eid);
+    res = db_perform_query(conn, query);
+    row = mysql_fetch_row(res);
+    char *t_tid = row[0];
+    char query2[] = "Update task set is_complete = 3 where tid = ";
+    strcat(query2, t_tid);
+    res = db_perform_query(conn, query2);
+    char query3[] = "delete from assign where tid = ";
+    strcat(query3, t_tid);
+    res = db_perform_query(conn, query3);
+    db_free_result(res);
 }
 
 void mark_project_as_completed()
