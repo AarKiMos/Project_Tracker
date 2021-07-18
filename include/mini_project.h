@@ -13,10 +13,6 @@
 //user login
 void login(char*, char*);
 
-
-// root view
-void root_view();
-
 // manager view
 void manager_view(char*);
 
