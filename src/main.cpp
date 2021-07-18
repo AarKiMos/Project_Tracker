@@ -23,11 +23,11 @@ DB *conn;    // the connection
 DB_RES *res; // the results
 DB_ROW row;  // the row
 
+// initialise DB connector
+struct connection_details D;
+
 int main(int argc, char **argv)
 {
-
-    // initialise DB connector
-    struct connection_details D;
     D.database = "mini_project";
     D.user = "aarkimos";
     D.password = "password1";
@@ -405,23 +405,26 @@ void delete_a_project()
 {
     int project_id;
     cout<<"Please enter the ID for the project to be deleted"<<endl<<endl;
+    cin >> project_id;
 
-    
+
 }
 
 
 void show_open_projects()
 {
-    DB_RES *res;
+    DB *local_conn;
+    DB_RES *result;
     DB_ROW row;
+    local_conn = db_connection_setup(D);
 
     stack<project> st;
-    char query[] = "Select * from projects;";
-    res = db_perform_query(conn, query);
+    char query[] = "Select * from project;";
+    result = db_perform_query(local_conn, query);
 
-    while((row = mysql_fetch_row(res)) != NULL)
+    while((row = mysql_fetch_row(result)) != NULL)
     {
-        if(row[3] == "0")
+        if(!strcmp(row[3],"0"))
         {
             project P;
             P.set_ID(atoi(row[0]));
@@ -445,21 +448,24 @@ void show_open_projects()
         st.pop();
     }
 
-    db_free_result(res);
+    db_free_result(result);
+    db_close(local_conn);
 }
 
 void show_closed_projects()
 {
-    DB_RES *res;
+    DB *local_conn;
+    DB_RES *result;
     DB_ROW row;
+    local_conn = db_connection_setup(D);
 
     stack<project> st;
-    char query[] = "Select * from projects;";
-    res = db_perform_query(conn, query);
+    char query[] = "Select * from project;";
+    result = db_perform_query(local_conn, query);
 
-    while((row = mysql_fetch_row(res)) != NULL)
+    while((row = mysql_fetch_row(result)) != NULL)
     {
-        if(row[3] == "1")
+        if(!strcmp(row[3],"1"))
         {
             project P;
             P.set_ID(atoi(row[0]));
@@ -483,5 +489,6 @@ void show_closed_projects()
         st.pop();
     }
 
-    db_free_result(res);
+    db_free_result(result);
+    db_close(local_conn);
 }
