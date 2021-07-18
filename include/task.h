@@ -19,8 +19,8 @@ private:
     int ID;
     int PID;
     string name;
-    string dept;
     bool is_complete;
+    struct tm deadline;
     
     task* prev;
     task* next;
