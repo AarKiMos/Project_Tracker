@@ -18,15 +18,22 @@ private:
 
     int ID;
     string name;
+    string access_level;
     
 public:
+
+    emp *prev;
+    emp *next;
+    
     // TODO: Param and copy constructor
      
     void set_name(string);
     void set_ID(int);
+    void set_access_level(string);
 
     int get_ID();
     string get_name();
+    string get_access_level();
 };
 
 

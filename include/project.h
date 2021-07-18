@@ -22,9 +22,13 @@ private:
     struct tm deadline;
 
 public:
+    int is_complete; // 0 if project has been completed else 1
+    int dtd; // Days to Deadline (not in DB)
     int task_count;
-    task *completed;
-    task *pending;
+    task *list;
+
+    project *prev; //To create data structures
+    project *next;
 
     //TODO: param and copy constructor
 
@@ -32,15 +36,10 @@ public:
     void set_ID(int);
     void set_deadline(struct tm); //read ctime tm structure for more info
 
-    void set_task_count(int);
-    void set_task_list(task*);
-
     string get_name();
     int get_ID();
     struct tm get_deadline();
     
-    int get_task_count();
-    task* get_task_list();
 };
 
 #endif
