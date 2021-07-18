@@ -21,7 +21,6 @@ using namespace std;
 DB *conn;    // the connection
 DB_RES *res; // the results
 DB_ROW row;  // the row
-priority_queue<int, vector<int>, greater<int>> proj_queue;
 
 int main(int argc, char **argv)
 {
@@ -260,8 +259,17 @@ struct tm formatDate(string dateObj)
 }
 
 
-
-
+int calcDTD(string dateStr)
+{
+    string str = dateStr.substr(8,2);
+    int date = stoi(str);
+    
+    time_t t = time(NULL);
+	tm* tPtr = localtime(&t);
+    
+    int dtd = tPtr->tm_mday - date;
+    return dtd;    
+}
 
 // Task management functions
 
@@ -289,6 +297,36 @@ void add_new_task(int new_task_pid)
 
     char *query2;
     sprintf(query2, "Insert into task values (%d, %d, '%s', '%s');",new_task_pid,new_task.get_ID(), new_task.get_name(), ddStr);
+}
+
+void start_new_task()
+{
+    priority_queue<int, vector<int>, greater<int>> task_queue;
+    DB_RES *res;
+    DB_ROW row;
+    char query[] = "Select deadline from task;";
+    res = db_perform_query(conn, query);
+    row = mysql_fetch_row(res);
+
+    while((row = mysql_fetch_row(res)) != NULL)
+    {
+
+
+
+
+
+
+
+
+
+
+
+    }
+
+
+
+
+    
 }
 
 // Functions called from within views
