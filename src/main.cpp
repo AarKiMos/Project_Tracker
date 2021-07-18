@@ -302,12 +302,18 @@ void add_new_task(int new_task_pid)
 
 void start_new_task()
 {
-    priority_queue<int, vector<int>, greater<int>> task_queue;
-    unordered_map<int, char *> umap;
+    DB *local_conn;
     DB_RES *res;
     DB_ROW row;
+    local_conn = db_connection_setup(D);
+    priority_queue<int, vector<int>, greater<int>> task_queue;
+    unordered_map<int, char *> umap;
+    int t_eid;
+
+    cout<<"Enter employee id"<<endl;
+    cin>>t_eid;
     char query[] = "Select * from task where is_complete=1;";
-    res = db_perform_query(conn, query);
+    res = db_perform_query(local_conn, query);
     row = mysql_fetch_row(res);
 
     while((row = mysql_fetch_row(res)) != NULL)
@@ -321,20 +327,32 @@ void start_new_task()
 
     char query2[] = "update task set is_complete = 2 where tid = ";
     strcat(query2,top_task_id);
-    res = db_perform_query(conn, query2);
+    res = db_perform_query(local_conn, query2);
+
+    char query3[] = "select pid from task where tid =";
+    strcat(query3, top_task_id);
+    res = db_perform_query(local_conn, query3);
+    row = mysql_fetch_row(res);
+    int t_pid = atoi(row[0]);
+
+    char *query4;
+    sprintf(query4, "Insert into assign values (%d, %d, %d);",t_eid, t_pid, atoi(top_task_id));
+    res = db_perform_query(local_conn, query4);
     db_free_result(res);
 }
 
 void view_task_at_hand()
 {
+    DB *local_conn;
+    DB_RES *res;
+    DB_ROW row;
+    local_conn = db_connection_setup(D);
     char *eid;
     cout<<"Enter employee id"<<endl;
     cin>>eid;
-    DB_RES *res;
-    DB_ROW row;
     char query[] = "Select t.tid, t.name from task t, assing ag where ag.tid = t.tid and eid =";
     strcat(query, eid);
-    res = db_perform_query(conn, query);
+    res = db_perform_query(local_conn, query);
     row = mysql_fetch_row(res);
     cout<<endl<<row[0]<<" | "<<row[1];
     db_free_result(res);
@@ -342,22 +360,24 @@ void view_task_at_hand()
 
 void mark_task_as_complete()
 {
+    DB *local_conn;
+    DB_RES *res;
+    DB_ROW row;
+    local_conn = db_connection_setup(D);
     char *eid;
     cout<<"Enter employee id"<<endl;
     cin>>eid;
-    DB_RES *res;
-    DB_ROW row;
     char query[] = "Select tid from assing where eid = ";
     strcat(query, eid);
-    res = db_perform_query(conn, query);
+    res = db_perform_query(local_conn, query);
     row = mysql_fetch_row(res);
     char *t_tid = row[0];
     char query2[] = "Update task set is_complete = 3 where tid = ";
     strcat(query2, t_tid);
-    res = db_perform_query(conn, query2);
+    res = db_perform_query(local_conn, query2);
     char query3[] = "delete from assign where tid = ";
     strcat(query3, t_tid);
-    res = db_perform_query(conn, query3);
+    res = db_perform_query(local_conn, query3);
     db_free_result(res);
 }
 
