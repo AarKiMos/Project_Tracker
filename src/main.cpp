@@ -10,6 +10,7 @@
 #include <stack>
 #include <queue>
 #include <string>
+#include <unordered_map>
 #include "mini_project.h"
 #include "db_util.h"
 #include "project.h"
@@ -302,31 +303,26 @@ void add_new_task(int new_task_pid)
 void start_new_task()
 {
     priority_queue<int, vector<int>, greater<int>> task_queue;
+    unordered_map<int, char *> umap;
     DB_RES *res;
     DB_ROW row;
-    char query[] = "Select deadline from task;";
+    char query[] = "Select * from task where is_complete=1;";
     res = db_perform_query(conn, query);
     row = mysql_fetch_row(res);
 
     while((row = mysql_fetch_row(res)) != NULL)
     {
-
-
-
-
-
-
-
-
-
-
-
+        char *id = row[1];
+        int days = calcDTD(row[3]);
+        task_queue.push(days);
+        umap.insert({days, id});
     }
+    char *top_task_id = umap.at(task_queue.top());
 
-
-
-
-    
+    char query2[] = "update task set is_complete = 2 where tid = ";
+    strcat(query2,top_task_id);
+    res = db_perform_query(conn, query2);
+    db_free_result(res);
 }
 
 void view_task_at_hand()
