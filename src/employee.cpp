@@ -15,10 +15,20 @@ void emp::set_ID(int user_id){
   this->ID=user_id;
 }
 
+void emp::set_access_level(string str)
+{
+    this->access_level= str;
+}
+
 int emp::get_ID(){
   return ID;
 }
 
 string emp::get_name(){
   return name;
+}
+
+string emp::get_access_level()
+{
+    return access_level;
 }
