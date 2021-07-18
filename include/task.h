@@ -24,8 +24,7 @@ private:
     
 public:
 
-    int is_complete; // 0 if this task has been completed else 1
-
+    int status; // 0- not ready, 1- ready but unassigned, 2- assigned 3-completed 
     task* prev;
     task* next;    // To create data structures
 
