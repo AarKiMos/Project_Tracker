@@ -3,7 +3,10 @@
  * Data Structures group Mini Project
  * Project: 
  * Author: Aachman Mittal 9919103218
+ *         Ishan 9919103216
+ *         Shashank Agrawal 9919103232 
 ******************************************************************************/
+
 #include <iostream>
 #include <cstring>
 #include <cstdlib>
@@ -114,14 +117,13 @@ void manager_view(char *UID)
     void show_open_projects();
     void show_closed_projects();
     void add_new_project();
-    void delete_a_project();
 
     //TODO: 
 
     // view open projects()
     // view closed projects ()
     // add a project()
-    // remove a project()
+
 
     int loop = 1;
     while (loop)
@@ -132,8 +134,7 @@ void manager_view(char *UID)
         cout << " 1. Show open projects" << endl;
         cout << " 2. Show closed projects" << endl;
         cout << " 3. Add a new project" << endl;
-        cout << " 4. Delete a project" << endl;
-        cout << " 5. Exit" << endl;
+        cout << " 4. Exit" << endl;
 
         int choice;
         cin >> choice;
@@ -152,10 +153,6 @@ void manager_view(char *UID)
             break;
 
         case 4:
-            //delete_a_project();
-            break;
-        
-        case 5:
             loop = 0;
             break;
 
@@ -170,9 +167,9 @@ void employee_view(char *UID)
 
     //Prototypes
 
-    void start_new_task();
-    void view_task_at_hand();
-    void mark_task_as_completed();
+    void start_new_task(char*);
+    void view_task_at_hand(char*);
+    void mark_task_as_completed(char*);
 
     //TODO: 
     // pick task from queue()
@@ -195,15 +192,15 @@ void employee_view(char *UID)
         switch (choice)
         {
         case 1:
-            start_new_task();
+            start_new_task(UID);
             break;
 
         case 2:
-            view_task_at_hand();
+            view_task_at_hand(UID);
             break;
 
         case 3:
-            mark_task_as_completed();
+            mark_task_as_completed(UID);
             break;
 
         case 4:
@@ -319,91 +316,135 @@ void add_new_task(int new_task_pid)
 
 }
 
-void start_new_task()
+void start_new_task(char* t_eid)
 {
     DB *local_conn;
-    DB_RES *res;
+    DB_RES *result;
     DB_ROW row;
     local_conn = db_connection_setup(D);
-    priority_queue<int, vector<int>, greater<int>> task_queue;
-    unordered_map<int, char *> umap;
-    int t_eid;
 
-    cout<<"Enter employee id"<<endl;
-    cin>>t_eid;
-    char query[] = "Select * from task where is_complete=1;";
-    res = db_perform_query(local_conn, query);
-    row = mysql_fetch_row(res);
+    priority_queue<task, vector<task>, task_comparator> task_queue;
 
-    while((row = mysql_fetch_row(res)) != NULL)
+    char query[] = "Select * from task where is_complete = 1;";
+
+    result = db_perform_query(local_conn, query);
+
+    while((row = mysql_fetch_row(result)) != NULL)
     {
-        char *id = row[1];
-        int days = calcDTD(row[3]);
-        task_queue.push(days);
-        umap.insert({days, id});
+ 
+        task new_task;
+ 
+        new_task.set_PID(atoi(row[0]));
+        new_task.set_ID(atoi(row[1]));
+        new_task.set_name(row[2]);
+        new_task.set_deadline(formatDate(row[3]));
+        new_task.dtd = calcDTD(row[3]);
+        new_task.status = 1;
+
+        task_queue.push(new_task);
     }
-    char *top_task_id = umap.at(task_queue.top());
 
+    task T = task_queue.top();
+
+    db_free_result(result);
+
+    char temp[5];
+    sprintf(temp, "%d", T.get_PID());
+    
+    char query4[100];
+    sprintf(query4, "Insert into assign values (%s, %d, %d);",t_eid, T.get_PID(), T.get_ID());
+    result = db_perform_query(local_conn, query4);
+
+    sprintf(temp, "%d", T.get_ID());
     char query2[] = "update task set is_complete = 2 where tid = ";
-    strcat(query2,top_task_id);
-    res = db_perform_query(local_conn, query2);
+    strcat(query2, temp);
+    strcat(query2, ";");
 
-    char query3[] = "select pid from task where tid =";
-    strcat(query3, top_task_id);
-    res = db_perform_query(local_conn, query3);
-    row = mysql_fetch_row(res);
-    int t_pid = atoi(row[0]);
+    result = db_perform_query(local_conn, query2);
 
-    char *query4;
-    sprintf(query4, "Insert into assign values (%d, %d, %d);",t_eid, t_pid, atoi(top_task_id));
-    res = db_perform_query(local_conn, query4);
-    db_free_result(res);
+
+
 }
 
-void view_task_at_hand()
+void view_task_at_hand(char* eid)
 {
     DB *local_conn;
     DB_RES *res;
     DB_ROW row;
     local_conn = db_connection_setup(D);
-    char *eid;
-    cout<<"Enter employee id"<<endl;
-    cin>>eid;
-    char query[] = "Select t.tid, t.name from task t, assing ag where ag.tid = t.tid and eid =";
+
+    char query[] = "Select t.tid, t.name from task t, assign ag where ag.tid = t.tid and eid =";
     strcat(query, eid);
+    strcat(query, ";");
+
     res = db_perform_query(local_conn, query);
-    row = mysql_fetch_row(res);
-    cout<<endl<<row[0]<<" | "<<row[1];
+    if((row = mysql_fetch_row(res)) != NULL)
+    {
+        cout<<"Task Id | Task Name";
+        cout<<endl<<row[0]<<" | "<<row[1];
+    }
+    else
+    {
+        cout<<"No task assigned"<<endl;
+    }
+    cout<<endl<<endl;
     db_free_result(res);
 }
 
-void mark_task_as_completed()
+void mark_task_as_completed(char* eid)
 {
     DB *local_conn;
-    DB_RES *res;
+    DB_RES *result;
     DB_ROW row;
+
     local_conn = db_connection_setup(D);
-    char *eid;
-    cout<<"Enter employee id"<<endl;
-    cin>>eid;
-    char query[] = "Select tid from assing where eid = ";
+
+    char query[] = "Select TID from assign where EID = ";
     strcat(query, eid);
-    res = db_perform_query(local_conn, query);
-    row = mysql_fetch_row(res);
-    char *t_tid = row[0];
-    char query2[] = "Update task set is_complete = 3 where tid = ";
+    strcat(query, ";");
+
+    result = db_perform_query(local_conn, query);
+    row = mysql_fetch_row(result);
+
+    char t_tid[5];
+    strcpy(t_tid, row[0]);
+
+    db_free_result(result);
+
+    char query2[] = "Update task set is_complete = 3 where TID = ";
     strcat(query2, t_tid);
-    res = db_perform_query(local_conn, query2);
-    char query3[] = "delete from assign where tid = ";
+    strcat(query2, ";");
+   
+    result = db_perform_query(local_conn, query2);
+
+    char query3[] = "delete from assign where TID = ";
     strcat(query3, t_tid);
-    res = db_perform_query(local_conn, query3);
-    db_free_result(res);
+    strcat(query3, ";");
+    result = db_perform_query(local_conn, query3);
+
+    char query4[100];
+    sprintf(query4, "Select * from task where TID = (%d + 1) and PID = (select PID from task where TID = %s);", atoi(t_tid), t_tid);
+    result = db_perform_query(local_conn, query4);
+
+    DB *local_conn_2;
+    local_conn_2 = db_connection_setup(D);
+
+    if((row = mysql_fetch_row(result)) == NULL)
+    {
+        char query5[100];
+        sprintf(query5, "update project set is_complete = 1 where PID = (select PID from task where TID = %s);", t_tid);
+        result = db_perform_query(local_conn_2, query5);
+    }
+    else
+    {
+        char query5[100];
+        sprintf(query5, "update task set is_complete = 1 where TID = (%d + 1) and PID = (select PID from task where TID = %s);", atoi(t_tid), t_tid);
+        result = db_perform_query(local_conn_2, query5);
+    }
+
+    db_free_result(result);
 }
 
-void mark_project_as_completed()
-{
-
-}
 
 void add_new_project()
 {
@@ -507,7 +548,7 @@ void show_closed_projects()
     DB_RES *result;
     DB_ROW row;
     local_conn = db_connection_setup(D);
-
+    
     stack<project> st;
     char query[] = "Select * from project;";
     result = db_perform_query(local_conn, query);
