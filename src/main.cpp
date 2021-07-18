@@ -149,10 +149,7 @@ void manager_view(char *UID)
         cout << " 2. Show closed projects" << endl;
         cout << " 3. Add a new project" << endl;
         cout << " 4. Delete a project" << endl;
-        cout << " 5. Add a new employee (user)" << endl;
-        cout << " 6. Remove an employee (user)" << endl;
-        cout << " 7. Genreate a list of all the employees" << endl;
-        cout << " 8. Exit" << endl;
+        cout << " 5. Exit" << endl;
 
         int choice;
         cin >> choice;
@@ -175,18 +172,6 @@ void manager_view(char *UID)
             break;
         
         case 5:
-            //new_employee();
-            break;
-
-        case 6:
-            //remove_employee();
-            break;
-
-        case 7:
-            //list_employees();
-            break;
-
-        case 8:
             loop = 0;
             break;
 
@@ -223,8 +208,7 @@ void employee_view(char *UID)
         cout << " 1. Start_next_task" << endl;
         cout << " 2. View current task at hand" << endl;
         cout << " 3. Mark current task at hand as completed" << endl;
-        cout << " 4. Add a remark to project at hand" << endl;
-        cout << " 5. Exit" << endl;
+        cout << " 4. Exit" << endl;
 
         int choice;
         cin >> choice;
@@ -243,10 +227,6 @@ void employee_view(char *UID)
             break;
 
         case 4:
-            //add_remark();
-            break;
-
-        case 5:
             loop = 0;
             break;
 
