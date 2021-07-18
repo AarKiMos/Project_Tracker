@@ -148,7 +148,7 @@ void manager_view(char *UID)
             break;
 
         case 3:
-            //add_new_project();
+            add_new_project();
             break;
 
         case 4:
@@ -195,15 +195,15 @@ void employee_view(char *UID)
         switch (choice)
         {
         case 1:
-            //start_new_task();
+            start_new_task();
             break;
 
         case 2:
-            //view_task_at_hand();
+            view_task_at_hand();
             break;
 
         case 3:
-            //mark_task_as_complete();
+            mark_task_as_completed();
             break;
 
         case 4:
@@ -276,9 +276,14 @@ int calcDTD(string dateStr)
 
 void add_new_task(int new_task_pid)
 {
+    DB *local_conn;
+    DB_RES *result;
+    DB_ROW row;
+
+    local_conn = db_connection_setup(D);
     char query[] = "Select MAX(TID) from task;";
-    res = db_perform_query(conn, query);
-    row = mysql_fetch_row(res);
+    result = db_perform_query(local_conn, query);
+    row = mysql_fetch_row(result);
   
     task new_task;
     string new_task_name;
@@ -289,15 +294,29 @@ void add_new_task(int new_task_pid)
     cout<<"Enter deadline of task (DD MM YYYY)"<<endl;
     cin>>new_task_dd.tm_mday>>new_task_dd.tm_mon>>new_task_dd.tm_year;
 
+
     string ddStr = formatDate(new_task_dd);
+
 
     new_task.set_PID(new_task_pid);
     new_task.set_ID(atoi(row[0])+1);
     new_task.set_name(new_task_name);
     new_task.set_deadline(new_task_dd);
 
-    char *query2;
-    sprintf(query2, "Insert into task values (%d, %d, '%s', '%s');",new_task_pid,new_task.get_ID(), new_task.get_name(), ddStr);
+
+
+    // while((row = mysql_fetch_row(result)) != NULL) {}
+    db_free_result(result);
+
+
+    char query2[100]; 
+    // char query2[]= "Insert into task values (1, 4, 'task_4', '2021-12-12', );";
+    sprintf(query2, "Insert into task values (%d, %d, '%s', '%s', %d);",new_task_pid, new_task.get_ID(), new_task.get_name().c_str(), ddStr.c_str(), 0);
+
+    result = db_perform_query(local_conn, query2);
+
+    db_close(local_conn);
+
 }
 
 void start_new_task()
@@ -340,7 +359,7 @@ void view_task_at_hand()
     db_free_result(res);
 }
 
-void mark_task_as_complete()
+void mark_task_as_completed()
 {
     char *eid;
     cout<<"Enter employee id"<<endl;
@@ -368,9 +387,14 @@ void mark_project_as_completed()
 
 void add_new_project()
 {
+    DB *local_conn;
+    DB_RES *result;
+    DB_ROW row;
+
+    local_conn = db_connection_setup(D);
     char query[] = "Select MAX(PID) from project;";
-    res = db_perform_query(conn, query);
-    row = mysql_fetch_row(res);
+    result = db_perform_query(local_conn, query);
+    row = mysql_fetch_row(result);
   
     project new_proj;
     string new_proj_name;
@@ -397,8 +421,14 @@ void add_new_project()
         cin>>it;
     }
 
-    char *query2;
-    sprintf(query2, "Insert into project values (%d, '%s', '%s', %d, %d);",new_proj.get_ID(), new_proj.get_name(), ddStr, 0, task_count);
+    // while((row = mysql_fetch_row(result)) != NULL) {}
+    db_free_result(result);
+
+    char query2[100];
+    sprintf(query2, "Insert into project values (%d, '%s', '%s', %d, %d);",new_proj.get_ID(), new_proj.get_name().c_str(), ddStr.c_str(), 0, task_count);
+
+    db_perform_query(local_conn, query2);
+    db_close(local_conn);
 }
 
 void delete_a_project()
@@ -409,7 +439,6 @@ void delete_a_project()
 
 
 }
-
 
 void show_open_projects()
 {
