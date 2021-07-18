@@ -269,6 +269,34 @@ string formatDate(struct tm dateObj)
     return dateStr;
 }
 
+// Task management functions
+
+void add_new_task(int new_task_pid)
+{
+    char query[] = "Select MAX(TID) from task;";
+    res = db_perform_query(conn, query);
+    row = mysql_fetch_row(res);
+  
+    task new_task;
+    string new_task_name;
+    struct tm new_task_dd;
+
+    cout<<"Enter name of Task"<<endl;
+    cin>>new_task_name;
+    cout<<"Enter deadline of task (DD MM YYYY)"<<endl;
+    cin>>new_task_dd.tm_mday>>new_task_dd.tm_mon>>new_task_dd.tm_year;
+
+    string ddStr = formatDate(new_task_dd);
+
+    new_task.set_PID(new_task_pid);
+    new_task.set_ID(atoi(row[0])+1);
+    new_task.set_name(new_task_name);
+    new_task.set_deadline(new_task_dd);
+
+    char *query2;
+    sprintf(query2, "Insert into task values (%d, %d, '%s', '%s');",new_task_pid,new_task.get_ID(), new_task.get_name(), ddStr);
+}
+
 // Functions called from within views
 
 void new_employee()
@@ -300,6 +328,7 @@ void add_new_project()
     project new_proj;
     string new_proj_name;
     struct tm new_proj_dd;
+    int task_count = 0;
 
     cout<<"Enter name of project"<<endl;
     cin>>new_proj_name;
@@ -312,6 +341,15 @@ void add_new_project()
     new_proj.set_name(new_proj_name);
     new_proj.set_deadline(new_proj_dd);
 
+    int it = 1;
+    while(it)
+    {
+        task_count++;
+        add_new_task(new_proj.get_ID());
+        cout<<"Add new task? (1/0)"<<endl;
+        cin>>it;
+    }
+
     char *query2;
-    sprintf(query2, "Insert into project values (%d, '%s', '%s');",new_proj.get_ID(), new_proj.get_name(), ddStr);
+    sprintf(query2, "Insert into project values (%d, '%s', '%s', %d, %d);",new_proj.get_ID(), new_proj.get_name(), ddStr, 0, task_count);
 }
