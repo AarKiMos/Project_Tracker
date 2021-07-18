@@ -121,11 +121,7 @@ void manager_view(char *UID)
     // view closed projects ()
     // add a project()
     // remove a project()
-    // list of employees ()
-    // add user account ()
-    // remove account ()
-    
-    
+
     int loop = 1;
     while (loop)
     {
@@ -143,11 +139,11 @@ void manager_view(char *UID)
         switch (choice)
         {
         case 1:
-            //show_open_projects();
+            show_open_projects();
             break;
 
         case 2:
-            //show_closed_projects();
+            show_closed_projects();
             break;
 
         case 3:
@@ -171,9 +167,13 @@ void manager_view(char *UID)
 void employee_view(char *UID)
 {
 
+    //Prototypes
+
+    void start_new_task();
+    void view_task_at_hand();
+    void mark_task_as_completed();
 
     //TODO: 
-
     // pick task from queue()
     // view current task in hand()
     // mark current task as finished()
@@ -329,27 +329,15 @@ void start_new_task()
     
 }
 
-// Functions called from within views
+void view_task_at_hand()
+{
 
-// void new_employee()
-// {
-//     char query[] = "Select MAX(EID) from employee;";
-//     res = db_perform_query(conn, query);
-//     row = mysql_fetch_row(res);
-    
-//     emp new_emp;
-//     string new_emp_name;
+}
 
-//     cout<<"Enter name of employee"<<endl;
-//     cin>>new_emp_name;
+void mark_project_as_completed()
+{
 
-//     new_emp.set_ID(atoi(row[0])+1);
-//     new_emp.set_name(new_emp_name);
-
-//     char *query2;
-//     sprintf(query2, "Insert into employee values (%d, '%s');",new_emp.get_ID(), new_emp.get_name() );
-// }
-
+}
 
 void add_new_project()
 {
@@ -385,6 +373,15 @@ void add_new_project()
     char *query2;
     sprintf(query2, "Insert into project values (%d, '%s', '%s', %d, %d);",new_proj.get_ID(), new_proj.get_name(), ddStr, 0, task_count);
 }
+
+void delete_a_project()
+{
+    int project_id;
+    cout<<"Please enter the ID for the project to be deleted"<<endl<<endl;
+
+    
+}
+
 
 void show_open_projects()
 {
