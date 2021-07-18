@@ -5,9 +5,9 @@
  * Author: Aachman Mittal 9919103218
 ******************************************************************************/
 #include <iostream>
-// #include <fstream>
 #include <cstring>
 #include <cstdlib>
+#include <stack>
 #include <queue>
 #include <string>
 #include "mini_project.h"
@@ -45,7 +45,7 @@ int main(int argc, char **argv)
         }
         else if (!strcmp(argv[1], "-h") || !strcmp(argv[1], "--help"))
         {
-            // TODO: Display a help message
+            cout << "login with '-l/--login userId password'"<<endl;
             return 0;
         }
         else
@@ -53,7 +53,7 @@ int main(int argc, char **argv)
             cout << "Invalid command line args, use -h/--help for help" << endl;
         }
     }
-    else //else ask for login credentialssd
+    else //else ask for login credentials
     {
         char uid[5], pass[10];
         cout << endl
@@ -115,21 +115,9 @@ void manager_view(char *UID)
     void show_closed_projects();
     void add_new_project();
     void delete_a_project();
-    void new_employee();
-    void remove_employee();
-    void list_employees();
-
-    emp current_user;
-    char query[] = "select * from user where UID = "; //later change to employee table
-    strcat(query, UID);
-    strcat(query, ";");
-
-    db_free_result(res);
-    res = db_perform_query(conn, query);
 
     //TODO: 
 
-    //copy values in current_user
     // view open projects()
     // view closed projects ()
     // add a project()
@@ -183,21 +171,13 @@ void manager_view(char *UID)
 
 void employee_view(char *UID)
 {
-    emp current_user;
-    char query[] = "select * from user where UID = "; //later change to employee table
-    strcat(query, UID);
-    strcat(query, ";");
 
-    db_free_result(res);
-    res = db_perform_query(conn, query);
 
     //TODO: 
 
-    // copy values in current_user
     // pick task from queue()
     // view current task in hand()
     // mark current task as finished()
-    // add a remark to current project()
 
     int loop = 1;
     while (loop)
@@ -249,6 +229,40 @@ string formatDate(struct tm dateObj)
     return dateStr;
 }
 
+struct tm formatDate(string dateObj)
+{
+    struct tm dateStr;
+    dateStr.tm_year = 0;
+    dateStr.tm_mon = 0;
+    dateStr.tm_mday = 0;
+    string::iterator it= dateObj.begin();
+    for (int i=0; i<4; i++)
+    {
+        dateStr.tm_year = dateStr.tm_year*10 + (*it - '0');
+        it++;
+    }
+    it++;
+    
+    for (int i=0; i<2; i++)
+    {
+        dateStr.tm_mon = dateStr.tm_mon*10 + (*it - '0');
+        it++;
+    }
+    it++;
+
+    for (int i=0; i<2; i++)
+    {
+        dateStr.tm_mday = dateStr.tm_mday*10 + (*it - '0');
+        it++;
+    }
+
+    return dateStr;
+}
+
+
+
+
+
 // Task management functions
 
 void add_new_task(int new_task_pid)
@@ -279,24 +293,24 @@ void add_new_task(int new_task_pid)
 
 // Functions called from within views
 
-void new_employee()
-{
-    char query[] = "Select MAX(EID) from employee;";
-    res = db_perform_query(conn, query);
-    row = mysql_fetch_row(res);
+// void new_employee()
+// {
+//     char query[] = "Select MAX(EID) from employee;";
+//     res = db_perform_query(conn, query);
+//     row = mysql_fetch_row(res);
     
-    emp new_emp;
-    string new_emp_name;
+//     emp new_emp;
+//     string new_emp_name;
 
-    cout<<"Enter name of employee"<<endl;
-    cin>>new_emp_name;
+//     cout<<"Enter name of employee"<<endl;
+//     cin>>new_emp_name;
 
-    new_emp.set_ID(atoi(row[0])+1);
-    new_emp.set_name(new_emp_name);
+//     new_emp.set_ID(atoi(row[0])+1);
+//     new_emp.set_name(new_emp_name);
 
-    char *query2;
-    sprintf(query2, "Insert into employee values (%d, '%s');",new_emp.get_ID(), new_emp.get_name() );
-}
+//     char *query2;
+//     sprintf(query2, "Insert into employee values (%d, '%s');",new_emp.get_ID(), new_emp.get_name() );
+// }
 
 
 void add_new_project()
@@ -332,4 +346,80 @@ void add_new_project()
 
     char *query2;
     sprintf(query2, "Insert into project values (%d, '%s', '%s', %d, %d);",new_proj.get_ID(), new_proj.get_name(), ddStr, 0, task_count);
+}
+
+void show_open_projects()
+{
+    DB_RES *res;
+    DB_ROW row;
+
+    stack<project> st;
+    char query[] = "Select * from projects;";
+    res = db_perform_query(conn, query);
+
+    while((row = mysql_fetch_row(res)) != NULL)
+    {
+        if(row[3] == "0")
+        {
+            project P;
+            P.set_ID(atoi(row[0]));
+            P.set_name(row[1]);
+            P.set_deadline(formatDate(row[2]));
+            P.is_complete = 0;
+            P.task_count = atoi(row[5]);
+        
+            st.push(P);
+        }
+    }
+    
+    cout<<"Open projects:- "<<endl;
+    cout<<endl;
+    cout<< "ID | Name | Deadline"<<endl<<endl;
+
+    while(!st.empty())
+    {
+        project P = st.top();
+        cout<<P.get_ID()<<" | "<<P.get_name()<<" | "<<formatDate(P.get_deadline())<<endl;
+        st.pop();
+    }
+
+    db_free_result(res);
+}
+
+void show_closed_projects()
+{
+    DB_RES *res;
+    DB_ROW row;
+
+    stack<project> st;
+    char query[] = "Select * from projects;";
+    res = db_perform_query(conn, query);
+
+    while((row = mysql_fetch_row(res)) != NULL)
+    {
+        if(row[3] == "1")
+        {
+            project P;
+            P.set_ID(atoi(row[0]));
+            P.set_name(row[1]);
+            P.set_deadline(formatDate(row[2]));
+            P.is_complete = 1;
+            P.task_count = atoi(row[5]);
+        
+            st.push(P);
+        }
+    }
+    
+    cout<<"Closed projects:- "<<endl;
+    cout<<endl;
+    cout<< "ID | Name | Deadline"<<endl<<endl;
+
+    while(!st.empty())
+    {
+        project P = st.top();
+        cout<<P.get_ID()<<" | "<<P.get_name()<<" | "<<formatDate(P.get_deadline())<<endl;
+        st.pop();
+    }
+
+    db_free_result(res);
 }
