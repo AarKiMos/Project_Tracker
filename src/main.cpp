@@ -13,7 +13,6 @@
 #include <stack>
 #include <queue>
 #include <string>
-#include <unordered_map>
 #include "mini_project.h"
 #include "db_util.h"
 #include "project.h"
@@ -71,7 +70,7 @@ int main(int argc, char **argv)
     }
 
     //login and call view accordingly
-    //according to view query the database and present options to the user
+    //according to view present options to the user
 
     db_close(conn);
 
@@ -118,13 +117,6 @@ void manager_view(char *UID)
     void show_closed_projects();
     void add_new_project();
 
-    //TODO: 
-
-    // view open projects()
-    // view closed projects ()
-    // add a project()
-
-
     int loop = 1;
     while (loop)
     {
@@ -170,11 +162,6 @@ void employee_view(char *UID)
     void start_new_task(char*);
     void view_task_at_hand(char*);
     void mark_task_as_completed(char*);
-
-    //TODO: 
-    // pick task from queue()
-    // view current task in hand()
-    // mark current task as finished()
 
     int loop = 1;
     while (loop)
@@ -300,14 +287,11 @@ void add_new_task(int new_task_pid)
     new_task.set_name(new_task_name);
     new_task.set_deadline(new_task_dd);
 
-
-
-    // while((row = mysql_fetch_row(result)) != NULL) {}
     db_free_result(result);
 
 
     char query2[100]; 
-    // char query2[]= "Insert into task values (1, 4, 'task_4', '2021-12-12', );";
+
     sprintf(query2, "Insert into task values (%d, %d, '%s', '%s', %d);",new_task_pid, new_task.get_ID(), new_task.get_name().c_str(), ddStr.c_str(), 0);
 
     result = db_perform_query(local_conn, query2);
@@ -362,8 +346,7 @@ void start_new_task(char* t_eid)
 
     result = db_perform_query(local_conn, query2);
 
-
-
+    db_close(local_conn);
 }
 
 void view_task_at_hand(char* eid)
@@ -389,6 +372,8 @@ void view_task_at_hand(char* eid)
     }
     cout<<endl<<endl;
     db_free_result(res);
+
+    db_close(local_conn);
 }
 
 void mark_task_as_completed(char* eid)
@@ -443,6 +428,8 @@ void mark_task_as_completed(char* eid)
     }
 
     db_free_result(result);
+    db_close(local_conn);
+    db_close(local_conn_2);
 }
 
 
@@ -492,14 +479,6 @@ void add_new_project()
     db_close(local_conn);
 }
 
-void delete_a_project()
-{
-    int project_id;
-    cout<<"Please enter the ID for the project to be deleted"<<endl<<endl;
-    cin >> project_id;
-
-
-}
 
 void show_open_projects()
 {
