@@ -1,7 +1,7 @@
 /******************************************************************************
  * JIIT Noida 
  * Data Structures group Mini Project
- * Project: 
+ * Project: PROJECT TRACKING, TASK MANAGEMENT AND JOB SCHEDULING SYSTEM
  * Author: Aachman Mittal 9919103218
  *         Ishan 9919103216
  *         Shashank Agrawal 9919103232 
